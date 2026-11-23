@@ -9,10 +9,12 @@ const Customer = require('../models/Customer');
 const Order = require('../models/Order');
 const InventoryTransaction = require('../models/InventoryTransaction');
 
-const seedDatabase = async () => {
+const executeSeed = async (isStandalone = false) => {
   try {
-    console.log('[Seed] Connecting to database...');
-    await connectDB();
+    if (isStandalone) {
+      console.log('[Seed] Connecting to database...');
+      await connectDB();
+    }
 
     console.log('[Seed] Purging existing database records...');
     await Promise.all([
@@ -269,7 +271,6 @@ const seedDatabase = async () => {
     const createdCustomers = await Customer.insertMany(customersData);
 
     console.log('[Seed] Seeding Sample Orders...');
-    // Create dates over the past 6 days for rich chart trends
     const now = new Date();
     const dayAgo = (days) => {
       const d = new Date(now);
@@ -469,7 +470,7 @@ const seedDatabase = async () => {
     ];
 
     for (const ordData of ordersToSeed) {
-      const order = await Order.create(ordData);
+      await Order.create(ordData);
 
       // Update customer stats for non-cancelled orders
       if (ordData.orderStatus !== 'Cancelled') {
@@ -501,12 +502,39 @@ const seedDatabase = async () => {
     console.log('   Password: Staff@123');
     console.log('====================================================');
 
-    await closeDB();
-    process.exit(0);
+    if (isStandalone) {
+      await closeDB();
+      process.exit(0);
+    }
   } catch (error) {
     console.error('[Seed Error]:', error);
-    process.exit(1);
+    if (isStandalone) {
+      process.exit(1);
+    }
+    throw error;
   }
 };
 
-seedDatabase();
+/**
+ * Automatically seeds the database if no users exist
+ */
+const autoSeedIfEmpty = async () => {
+  try {
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      console.log('[AutoSeed] No users found in database. Automatically populating default admin, staff & demo data...');
+      await executeSeed(false);
+      console.log('[AutoSeed] Auto-seeding completed. Default credentials ready to login.');
+    } else {
+      console.log(`[AutoSeed] Database verified with ${userCount} existing users.`);
+    }
+  } catch (err) {
+    console.error('[AutoSeed Error]:', err.message);
+  }
+};
+
+if (require.main === module) {
+  executeSeed(true);
+}
+
+module.exports = { executeSeed, autoSeedIfEmpty };

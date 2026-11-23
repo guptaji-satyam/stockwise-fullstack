@@ -32,7 +32,11 @@ export const Login = () => {
         navigate(from, { replace: true });
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      if (!err.response) {
+        toast.error('Cannot connect to backend API server. Please verify backend is running on port 5000 (run: cd backend; npm run dev)');
+      } else {
+        toast.error(err.response?.data?.message || 'Invalid email or password. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }

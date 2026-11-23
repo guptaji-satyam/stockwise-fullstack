@@ -77,7 +77,15 @@ const PORT = process.env.PORT || 5000;
 
 // Start server only when executed directly (not when required by tests)
 if (require.main === module) {
-  connectDB().then(() => {
+  connectDB().then(async () => {
+    // Automatically seed default admin, staff and demo items if database is empty
+    try {
+      const { autoSeedIfEmpty } = require('./seed/seedData');
+      await autoSeedIfEmpty();
+    } catch (seedErr) {
+      console.warn('[Server Startup] AutoSeed warning:', seedErr.message);
+    }
+
     app.listen(PORT, () => {
       console.log(`=================================================`);
       console.log(` StockWise Server running in ${process.env.NODE_ENV || 'development'} mode`);
