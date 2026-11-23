@@ -1,0 +1,16 @@
+{
+  "name": "stockwise-root",
+  "version": "1.0.0",
+  "description": "StockWise – Smart Inventory & Order Management System",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "seed": "cd backend && npm run seed",
+    "test:backend": "cd backend && npm test",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": ["inventory", "pos", "fullstack", "react", "node", "express", "mongodb"],
+  "author": "StockWise Team",
+  "license": "MIT"
+}
