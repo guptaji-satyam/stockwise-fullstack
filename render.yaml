@@ -18,3 +18,12 @@ services:
         value: 7d
       - key: FRONTEND_URL
         sync: false
+  - type: static
+    name: stockwise-frontend
+    env: static
+    plan: free
+    staticPublishPath: frontend/dist
+    buildCommand: cd frontend && npm install && npm run build
+    envVars:
+      - key: VITE_API_BASE
+        value: https://stockwise-backend.onrender.com/api
